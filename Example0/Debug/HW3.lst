@@ -1,0 +1,156 @@
+TMS320C2000 Assembler PC v20.2.1 Tue Feb 16 02:37:02 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../HW3.asm                                                           PAGE    1
+
+       1              ;****************************************************************************************
+       2              ; Part2.asm
+       3              ; Ryan Simoneau
+       4              ; Last Modified: Feb, 02 2021
+       5              ;
+       6              ; Description: This program converts a table of fahrenheit temperature values of arbitrary length in data mem
+       7              ;                          and stores them into a seperate table also located in data memory. This program as
+       8              ;
+       9              ; Command file used = KG_2837x_RAM_lnk_cpu1.cmd
+      10              ; Important Code locations:
+      11              ;               .data   RAMLS0   (internal DSP memory) starting address = 08000 Hex, 2K Words
+      12              ;               .text   RAMLS2   (internal DSP memory) starting address = 09000 Hex, 2K Words
+      13              ;               .ebss   RAMLS4   (internal DSP memory) starting address = 0A000 Hex, 2K Words
+      14              ;
+      15              ;****************************************************************************************
+      16                              .global         _c_int00
+      17              
+      18              
+      19              ;***************************** Program Constants ****************************************
+      20              
+      21        0003  N               .set    3 ; Counter equal to the length of the tables
+      22        7029  WDCR    .set    0x7029 ; the location of the watchdog timmer
+      23              
+      24              ;****************************************************************************************
+      25              
+      26              
+      27              ;******************* DATA ALLOCATION SECTION - Variables/Data ***************************
+      28              
+      29 00000000               .sect   .data
+      30              
+      31 00000000 0003  count   .word   N ; set the counter as the length of DegF
+      32 00000002 9333  TST             .float  273.15
+         00000003 4388 
+      33              
+      34 00000004 0000  DegC    .float  20, 30, 15
+         00000005 41A0 
+         00000006 0000 
+         00000007 41F0 
+         00000008 0000 
+         00000009 4170 
+      35 00000000       DegKOnes        .usect ".ebss",2*N ; will need 2 words per floating point number. (2*N)
+      36              DegKTenths      ,usect ".ebss",2*N
+ "../HW3.asm", ERROR!   at line 36: [E0002] Invalid mnemonic specification
+      37              
+      38              
+      39              ;****************************************************************************************
+      40              
+      41              
+      42              ;********************************** F335 Program ****************************************
+      43 00000000                       .text
+      44              
+      45 00000000       _c_int00:
+      46                              ; clear auxiliary registers for use later
+      47 00000000 D000                  MOVL    XAR0,#0
+      48 00000001 D100                  MOVL    XAR1,#0
+TMS320C2000 Assembler PC v20.2.1 Tue Feb 16 02:37:02 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../HW3.asm                                                           PAGE    2
+
+      49 00000002 D200                  MOVL    XAR2,#0
+      50 00000003 D300                  MOVL    XAR3,#0
+      51 00000004 D400                  MOVL    XAR4,#0
+      52              
+      53                              ; load auxiliary registers with addresses of data memory
+      54 00000005 8D00"                 MOVL    XAR0,#count
+         00000006 0000 
+      55 00000007 8D40"                 MOVL    XAR1,#DegC
+         00000008 0004 
+      56 00000009 8D80-                 MOVL    XAR2,#DegKOnes
+         0000000a 0000 
+      57 0000000b 8DC0"                 MOVL    XAR3,#DegKTenths
+         0000000c 000A 
+      58 0000000d 8F00"                 MOVL    XAR4,#TST
+         0000000e 0002 
+      59              
+      60 0000000f 0080' FVL:    LC              CtoK
+         00000010 0014 
+      61              
+      62 00000011 0BC0                  DEC             *XAR0
+      63 00000012 60FD                  B               FVL,NEQ
+      64              
+      65 00000013 6F00  END:    B               END,UNC ; if the counter is zero, the algorithm is complete
+      66              
+      67              ;********************************** Subroutines *****************************************
+      68              
+      69 00000014       CtoK:
+      70              
+      71                              ; floating point math operations
+      72 00000014 E2AF                  MOV32   R0H,*XAR1 ; R0 is DegC
+         00000015 00C1 
+      73              
+      74 00000016 E2AF                  MOV32   R2H,*XAR4 ; R2 gets 273.15
+         00000017 02C4 
+      75              
+      76                              ; add 273.15 to each value
+      77 00000018 E710                  ADDF32  R1H,R1H,R2H
+         00000019 0089 
+      78 0000001a 7700                  NOP
+      79              
+      80                              ; copy whats in R1H to another register to preserve the decimal
+      81 0000001b E6CF                  MOV32   R3H,R1H
+         0000001c 000B 
+      82              
+      83                              ; convert number to integer and then back to a float to remove the decimal
+      84 0000001d E68E                  F32TOUI16       R1H,R1H
+         0000001e 0009 
+      85 0000001f 7700                  NOP
+      86 00000020 7700                  NOP
+      87 00000021 E68D                  I16TOF32        R1H,R1H
+         00000022 0009 
+      88              
+      89                              ; subtract the integer value and multiply by ten and convert to an integer to get the tenths 
+      90 00000023 E720                  SUBF32          R3H,R3H,R1H
+ "../HW3.asm", ERROR!   at line 90: [E9999] Pipeline write-read conflict detected
+TMS320C2000 Assembler PC v20.2.1 Tue Feb 16 02:37:02 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../HW3.asm                                                           PAGE    3
+
+         00000024 005B 
+      91 00000025 7700                  NOP
+      92 00000026 E850                  MPYF32          R3H,#10.0,R3H
+         00000027 481B 
+      93 00000028 7700                  NOP
+      94                              ; store the ones place into memory
+      95 00000029 E203                  MOV32   *XAR2,R1H
+         0000002a 01C2 
+      96              
+      97                              ; move tenths place into memory
+      98 0000002b E203                  MOV32   *XAR3,R3H
+         0000002c 03C3 
+      99              
+     100              
+     101                              ; increment the address pointers
+     102 0000002d 93A1                  MOV             AH,AR1
+     103 0000002e 9D02                  ADD             AH,#2
+     104 0000002f 97A1                  MOV             AR1,AH
+     105              
+     106 00000030 93A2                  MOV             AH,AR2
+     107 00000031 9D02                  ADD             AH,#2
+     108 00000032 97A2                  MOV             AR2,AH
+     109              
+     110              
+     111 00000033 93A3                  MOV             AH,AR3
+     112 00000034 9D02                  ADD             AH,#2
+     113 00000035 97A3                  MOV             AR3,AH
+     114              
+     115 00000036 7614                  LRET
+
+2 Assembly Errors, No Assembly Warnings

@@ -1,0 +1,180 @@
+TMS320C2000 Assembler PC v20.2.1 Sun Feb 28 18:20:40 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Part4.asm                                                         PAGE    1
+
+       1              ;****************************************************************************************
+       2              ; Part4.asm
+       3              ; Ryan Simoneau
+       4              ; Last Modified: Jan, 27 2021
+       5              ;
+       6              ; Description: This program sets values to the LEDs based on the inputs from the DIP switches and push button
+       7              ;
+       8              ; Command file used = KG_2837x_RAM_lnk_cpu1.cmd
+       9              ; Important Code locations:
+      10              ;               .data   RAMLS0   (internal DSP memory) starting address = 08000 Hex, 2K Words
+      11              ;               .text   RAMLS2   (internal DSP memory) starting address = 09000 Hex, 2K Words
+      12              ;               .ebss   RAMLS4   (internal DSP memory) starting address = 0A000 Hex, 2K Words
+      13              ;
+      14              ;****************************************************************************************
+      15                              .global         _c_int00
+      16              
+      17              
+      18              ;***************************** Program Constants ****************************************
+      19              
+      20        7029  WDCP            .set    0x7029 ; address of each register in memory
+      21              
+      22        7C06  GPAMUX1L        .set    0x7C06
+      23        7C06  GPAMUX1H        .set    0x7C06
+      24        7C20  GPAGMUX1L       .set    0x7C20
+      25        7C21  GPAGMUX1H       .set    0x7C21
+      26              
+      27        7C08  GPAMUX2L        .set    0x7C08
+      28        7C09  GPAMUX2H        .set    0x7C09
+      29        7C22  GPAGMUX2L       .set    0x7C22
+      30        7C23  GPAGMUX2H       .set    0x7C23
+      31              
+      32        7F00  GPADATL         .set    0x7F00
+      33        7C0A  GPADIRL         .set    0x7C0A
+      34        7F02  GPASETL         .set    0x7F02
+      35        7F04  GPACLEARL       .set    0x7F04
+      36        7C0C  GPAPUDL         .set    0x7C0C
+      37        7C0D  GPAPUDH         .set    0x7C0D
+      38              
+      39              ;****************************************************************************************
+      40              
+      41              ;********************************** F335 Program ****************************************
+      42              
+      43 00000000                       .text
+      44              
+      45 00000000       _c_int00:
+      46              
+      47 00000000 7622                  EALLOW ; allow GPIO CTRL registers to be modified
+      48              
+      49                              ; clear some aux registers
+      50 00000001 D000                  MOVL    XAR0,#0
+      51 00000002 D100                  MOVL    XAR1,#0
+      52 00000003 D200                  MOVL    XAR2,#0
+      53              
+      54                              ; dissable the watchdog timer
+      55 00000004 28A0                  MOV             AR0,#WDCP
+TMS320C2000 Assembler PC v20.2.1 Sun Feb 28 18:20:40 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Part4.asm                                                         PAGE    2
+
+         00000005 7029 
+      56 00000006 9A68                  MOV             AL,#0x68
+      57 00000007 96C0                  MOV             *AR0,AL
+      58              
+      59                              ; enable pull up resistors for GPIO[16:14] and [3:0] (where the switches and buttons are)
+      60 00000008 28A8                  MOV             AH,#0xFFFE ; GPIO16
+         00000009 FFFE 
+      61 0000000a 28A9                  MOV             AL,#0x3FF0 ; GPIO[15:14] GPIO[3:0]
+         0000000b 3FF0 
+      62 0000000c 28A0                  MOV             AR0,#GPAPUDH
+         0000000d 7C0D 
+      63 0000000e 28A1                  MOV             AR1,#GPAPUDL
+         0000000f 7C0C 
+      64 00000010 97C0                  MOV             *AR0,AH
+      65 00000011 96C1                  MOV             *AR1,AL
+      66              
+      67                              ; set all the GPIO pins to GPIO
+      68 00000012 9A00                  MOV             AL,#0x0000
+      69              
+      70 00000013 28A0                  MOV             AR0,#GPAMUX1L ; change GPAMUX to zero before modifying GPAGMUX
+         00000014 7C06 
+      71 00000015 96C0                  MOV             *AR0,AL
+      72 00000016 28A0                  MOV             AR0,#GPAGMUX1L
+         00000017 7C20 
+      73 00000018 96C0                  MOV             *AR0,AL
+      74              
+      75 00000019 28A0                  MOV             AR0,#GPAMUX1H
+         0000001a 7C06 
+      76 0000001b 96C0                  MOV             *AR0,AL
+      77 0000001c 28A0                  MOV             AR0,#GPAGMUX1H
+         0000001d 7C21 
+      78 0000001e 96C0                  MOV             *AR0,AL
+      79              
+      80 0000001f 28A0                  MOV             AR0,#GPAMUX2L
+         00000020 7C08 
+      81 00000021 96C0                  MOV             *AR0,AL
+      82 00000022 28A0                  MOV             AR0,#GPAGMUX2L
+         00000023 7C22 
+      83 00000024 96C0                  MOV             *AR0,AL
+      84              
+      85 00000025 28A0                  MOV             AR0,#GPAMUX2H
+         00000026 7C09 
+      86 00000027 96C0                  MOV             *AR0,AL
+      87 00000028 28A0                  MOV             AR0,#GPAGMUX2H
+         00000029 7C23 
+      88 0000002a 96C0                  MOV             *AR0,AL
+      89              
+      90                              ; LED[7:2] => GPIO[11:6]. LED [1:0] => GPIO[5:4]
+      91 0000002b 28A0                  MOV             AR0,#GPASETL
+         0000002c 7F02 
+      92 0000002d 9A00                  MOV             AL,#0x00 ; set GPIO[15:0] to start since LEDs active low
+      93 0000002e FF83                  LSL             AL,#4
+      94 0000002f 96C0                  MOV             *AR0,AL
+      95 00000030 9AFF                  MOV             AL,#0xFF
+      96 00000031 FF83                  LSL             AL,#4
+TMS320C2000 Assembler PC v20.2.1 Sun Feb 28 18:20:40 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Part4.asm                                                         PAGE    3
+
+      97 00000032 96C0                  MOV             *AR0,AL
+      98              
+      99                              ; set the direction of GPIO[11:4] as outputs
+     100 00000033 28A0                  MOV             AR0,#GPADIRL
+         00000034 7C0A 
+     101 00000035 9AFF                  MOV             AL,#0xFF ; set LED pins as outputs from the uProcessor
+     102 00000036 FF83                  LSL             AL,#4 ; shift left so that the LEDs are set
+     103 00000037 96C0                  MOV             *AR0,AL
+     104              
+     105                              ; set the direction of push buttons and switches as inputs to the uProcessor
+     106              
+     107              
+     108 00000038       LOOP    ; continuously update the LEDs
+     109              
+     110                              ; Push Buttons
+     111 00000038 28A1                  MOV             AR1,#GPADATL+1 ; GPIO16
+         00000039 7F01 
+     112 0000003a 93C1                  MOV             AH,*AR1
+     113 0000003b FF91                  LSL             AH,#2 ; move it up 2 spaces
+     114 0000003c 9104                  AND             AH,#4 ; bitwise AND with 0b00000100 to mask
+     115 0000003d 28A1                  MOV             AR1,#GPADATL ; GPIO[15:14]
+         0000003e 7F00 
+     116 0000003f 92C1                  MOV             AL,*AR1
+     117 00000040 FFCD                  LSR             AL,#14 ; move to least 2 significant bits
+     118 00000041 9003                  AND             AL,#3 ; bitwise AND with 0b00000011 to mask
+     119 00000042 CBA9                  OR              AH,AL ; combine so AH contains GPIO[16:14] in lowest 3 bits
+     120 00000043 97A0                  MOV             AR0,AH ; move value out of accumulator register
+     121              
+     122                              ; Switches
+     123 00000044 28A1                  MOV             AR1,#GPADATL ; GPIO[3:0]
+         00000045 7F00 
+     124 00000046 93C1                  MOV             AH,*AR1
+     125 00000047 FF92                  LSL             AH,#3 ; make room for the push buttons
+     126 00000048 9178                  AND             AH,#0x78 ; bitwise and with 0b01111000 to mask
+     127              
+     128                              ; Combine
+     129 00000049 92A0                  MOV             AL,AR0 ; move the push button values into AL
+     130 0000004a CBA9                  OR              AH,AL ; combine the two so that the lower 7 bits are the switches and push bu
+     131 0000004b 5180                  OR              AH,#0x80 ; make sure theres a 1 in the MSb at all times so that the MSb of th
+     132              
+     133                              ; send to LEDs
+     134 0000004c 28A1                  MOV             AR1,#GPADATL
+         0000004d 7F00 
+     135 0000004e FF93                  LSL             AH,#4 ; LEDs at GPIO[11:4]
+     136 0000004f 97C1                  MOV             *AR1,AH
+     137              
+     138                              ; Branch back to the top of the loop and begin again
+     139 00000050 6FE8                  B               LOOP,UNC
+     140              
+     141              
+     142              
+     143              
+     144              
+
+No Assembly Errors, No Assembly Warnings

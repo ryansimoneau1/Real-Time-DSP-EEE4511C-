@@ -1,0 +1,202 @@
+TMS320C2000 Assembler PC v22.6.0 Wed Feb 15 19:20:01 2023
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Common/F2837xD_usDelay.asm                                        PAGE    1
+
+       1              ;//###########################################################################
+       2              ;//
+       3              ;// FILE: F2837xD_usDelay.asm
+       4              ;//
+       5              ;// TITLE: Simple delay function
+       6              ;//
+       7              ;// DESCRIPTION:
+       8              ;// This is a simple delay function that can be used to insert a specified
+       9              ;// delay into code.
+      10              ;// This function is only accurate if executed from internal zero-waitstate
+      11              ;// SARAM. If it is executed from waitstate memory then the delay will be
+      12              ;// longer then specified.
+      13              ;// To use this function:
+      14              ;//  1 - update the CPU clock speed in the F2837xD_Examples.h
+      15              ;//    file. For example:
+      16              ;//    #define CPU_RATE 6.667L // for a 150MHz CPU clock speed
+      17              ;//  2 - Call this function by using the DELAY_US(A) macro
+      18              ;//    that is defined in the F2837xD_Device.h file.  This macro
+      19              ;//    will convert the number of microseconds specified
+      20              ;//    into a loop count for use with this function.
+      21              ;//    This count will be based on the CPU frequency you specify.
+      22              ;//  3 - For the most accurate delay
+      23              ;//    - Execute this function in 0 waitstate RAM.
+      24              ;//    - Disable interrupts before calling the function
+      25              ;//      If you do not disable interrupts, then think of
+      26              ;//      this as an "at least" delay function as the actual
+      27              ;//      delay may be longer.
+      28              ;//  The C assembly call from the DELAY_US(time) macro will
+      29              ;//  look as follows:
+      30              ;//  extern void Delay(long LoopCount);
+      31              ;//        MOV   AL,#LowLoopCount
+      32              ;//        MOV   AH,#HighLoopCount
+      33              ;//        LCR   _Delay
+      34              ;//  Or as follows (if count is less then 16-bits):
+      35              ;//        MOV   ACC,#LoopCount
+      36              ;//        LCR   _Delay
+      37              ;//
+      38              ;//###########################################################################
+      39              ;// $TI Release: F2837xD Support Library v3.11.00.00 $
+      40              ;// $Release Date: Sun Oct  4 15:55:24 IST 2020 $
+      41              ;// $Copyright:
+      42              ;// Copyright (C) 2013-2020 Texas Instruments Incorporated - http://www.ti.com/
+      43              ;//
+      44              ;// Redistribution and use in source and binary forms, with or without 
+      45              ;// modification, are permitted provided that the following conditions 
+      46              ;// are met:
+      47              ;// 
+      48              ;//   Redistributions of source code must retain the above copyright 
+      49              ;//   notice, this list of conditions and the following disclaimer.
+      50              ;// 
+      51              ;//   Redistributions in binary form must reproduce the above copyright
+      52              ;//   notice, this list of conditions and the following disclaimer in the 
+      53              ;//   documentation and/or other materials provided with the   
+      54              ;//   distribution.
+      55              ;// 
+TMS320C2000 Assembler PC v22.6.0 Wed Feb 15 19:20:01 2023
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Common/F2837xD_usDelay.asm                                        PAGE    2
+
+      56              ;//   Neither the name of Texas Instruments Incorporated nor the names of
+      57              ;//   its contributors may be used to endorse or promote products derived
+      58              ;//   from this software without specific prior written permission.
+      59              ;// 
+      60              ;// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+      61              ;// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+      62              ;// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+      63              ;// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+      64              ;// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+      65              ;// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+      66              ;// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+      67              ;// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+      68              ;// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+      69              ;// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+      70              ;// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+      71              ;// $
+      72              ;//###########################################################################
+      73              
+      74                     .def _F28x_usDelay
+      75              
+      76                     .cdecls LIST ;;Used to populate __TI_COMPILER_VERSION__ macro
+      77                     %{
+      78                     %}
+ A     1              ; ------------------------------------------
+ A     2              ; Assembly Generated from C/C++ Source Code
+ A     3              ; ------------------------------------------
+ A     4              
+ A     5              ; =========== MACRO DEFINITIONS ===========
+ A     6                         .define "1",CPU1     
+ A     7                         .define "1",_LAUNCHXL_F28379D 
+ A     8                         .define "1",_OPTIMIZE_FOR_SPACE 
+ A     9                         .define "1",_TMS320C2000 
+ A    10                         .define "1",_TMS320C28X 
+ A    11                         .define "1",_TMS320C28XX 
+ A    12                         .define "1",__ASM_HEADER__ 
+ A    13                         .define "unsigned short",__CHAR16_TYPE__ 
+ A    14                         .define "unsigned long",__CHAR32_TYPE__ 
+ A    15                         .define "16",__CHAR_BIT__ 
+ A    16                         .define "22006000",__COMPILER_VERSION__ 
+ A    17                         .define """Feb 15 2023""",__DATE__ 
+ A    18                         .define "long",__EDG_PTRDIFF_TYPE__ 
+ A    19                         .define "unsigned long",__EDG_SIZE_TYPE__ 
+ A    20                         .define "413",__EDG_VERSION__ 
+ A    21                         .define "32767",__INT_MAX__ 
+ A    22                         .define "1",__LARGE_MODEL__ 
+ A    23                         .define "1",__LITTLE_ENDIAN__ 
+ A    24                         .define "9223372036854775807",__LONG_LONG_MAX__ 
+ A    25                         .define "2147483647",__LONG_MAX__ 
+ A    26                         .define "1",__PRAGMA_REDEFINE_EXTNAME 
+ A    27                         .define "long",__PTRDIFF_T_TYPE__ 
+ A    28                         .define "32767",__SCHAR_MAX__ 
+ A    29                         .define "32767",__SHRT_MAX__ 
+ A    30                         .define "2",__SIZEOF_DOUBLE__ 
+ A    31                         .define "2",__SIZEOF_FLOAT__ 
+ A    32                         .define "1",__SIZEOF_INT__ 
+TMS320C2000 Assembler PC v22.6.0 Wed Feb 15 19:20:01 2023
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Common/F2837xD_usDelay.asm                                        PAGE    3
+
+ A    33                         .define "4",__SIZEOF_LONG_DOUBLE__ 
+ A    34                         .define "4",__SIZEOF_LONG_LONG__ 
+ A    35                         .define "2",__SIZEOF_LONG__ 
+ A    36                         .define "2",__SIZEOF_PTRDIFF_T__ 
+ A    37                         .define "1",__SIZEOF_SHORT__ 
+ A    38                         .define "2",__SIZEOF_SIZE_T__ 
+ A    39                         .define "1",__SIZEOF_WCHAR_T__ 
+ A    40                         .define "1",__SIZEOF_WINT_T__ 
+ A    41                         .define "unsigned long",__SIZE_T_TYPE__ 
+ A    42                         .define "1",__STDC_HOSTED__ 
+ A    43                         .define "1",__STDC_NO_THREADS__ 
+ A    44                         .define "199409L",__STDC_VERSION__ 
+ A    45                         .define "1",__STDC__ 
+ A    46                         .define """19:20:01""",__TIME__ 
+ A    47                         .define "1",__TI_C99_COMPLEX_ENABLED__ 
+ A    48                         .define "22156",__TI_COMPILER_VERSION_QUAL_ID__ 
+ A    49                         .define "QUAL_LETTER",__TI_COMPILER_VERSION_QUAL__ 
+ A    50                         .define "22006000",__TI_COMPILER_VERSION__ 
+ A    51                         .define "1",__TI_GNU_ATTRIBUTE_SUPPORT__ 
+ A    52                         .define "0",__TI_STRICT_ANSI_MODE__ 
+ A    53                         .define "1",__TI_STRICT_FP_MODE__ 
+ A    54                         .define "16",__TI_WCHAR_T_BITS__ 
+ A    55                         .define "1",__TMS320C2000__ 
+ A    56                         .define "1",__TMS320C28XX_FPU32__ 
+ A    57                         .define "1",__TMS320C28XX_TMU0__ 
+ A    58                         .define "1",__TMS320C28XX_TMU__ 
+ A    59                         .define "1",__TMS320C28XX_VCU0__ 
+ A    60                         .define "1",__TMS320C28XX_VCU2__ 
+ A    61                         .define "1",__TMS320C28XX_VCU__ 
+ A    62                         .define "1",__TMS320C28XX__ 
+ A    63                         .define "1",__TMS320C28X__ 
+ A    64                         .define """EDG gcc 4.8 mode""",__VERSION__ 
+ A    65                         .define "unsigned int",__WCHAR_T_TYPE__ 
+ A    66                         .define "1",__edg_front_end__ 
+ A    67                         .define "1",__little_endian__ 
+ A    68                         .define "1",__signed_chars__ 
+ A    69              
+ A    70              ; =========== TYPE DEFINITIONS ===========
+ A    71              
+ A    72              ; =========== EXTERNAL FUNCTIONS ===========
+ A    73              
+ A    74              ; =========== EXTERNAL VARIABLES ===========
+      79              
+      80                     .if __TI_COMPILER_VERSION__
+      81                     .if __TI_COMPILER_VERSION__ >= 15009000
+      82 00000000              .sect ".TI.ramfunc"      ;;Used with compiler v15.9.0 and newer
+      83                     .else
+      84                     .sect "ramfuncs"         ;;Used with compilers older than v15.9.0
+      85                     .endif
+      86                     .endif
+      87              
+      88                      .global  __F28x_usDelay
+      89 00000000       _F28x_usDelay:
+      90 00000000 1901          SUB    ACC,#1
+      91 00000001 56C3          BF     _F28x_usDelay,GEQ    ;; Loop if ACC >= 0
+TMS320C2000 Assembler PC v22.6.0 Wed Feb 15 19:20:01 2023
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../Common/F2837xD_usDelay.asm                                        PAGE    4
+
+         00000002 FFFF 
+      92 00000003 0006          LRETR
+      93              
+      94              ;There is a 9/10 cycle overhead and each loop
+      95              ;takes five cycles. The LoopCount is given by
+      96              ;the following formula:
+      97              ;  DELAY_CPU_CYCLES = 9 + 5*LoopCount
+      98              ; LoopCount = (DELAY_CPU_CYCLES - 9) / 5
+      99              ; The macro DELAY_US(A) performs this calculation for you
+     100              ;
+     101              ;
+     102              
+     103              ;//
+     104              ;// End of file
+     105              ;//
+
+No Assembly Errors, No Assembly Warnings

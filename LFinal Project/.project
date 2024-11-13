@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>LFinal Project</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.ti.ccstudio.core.ccsNature</nature>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+	</natures>
+	<variableList>
+		<variable>
+			<name>DRIVERLIB_ROOT</name>
+			<value>file:/D:/ti/c2000/C2000Ware_3_03_00_00/driverlib/f2837xd/driverlib</value>
+		</variable>
+		<variable>
+			<name>DSP_EXAMPLES_COMMON</name>
+			<value>file:/D:/ti/c2000/C2000Ware_3_03_00_00/libraries/dsp/FPU/c28/examples/common/f2837xd</value>
+		</variable>
+		<variable>
+			<name>DSP_EXAMPLES_COMMONSRC</name>
+			<value>file:/D:/ti/c2000/C2000Ware_3_03_00_00/libraries/dsp/FPU/c28/examples/common</value>
+		</variable>
+		<variable>
+			<name>FASTRTS_MATH_LIB_ROOT</name>
+			<value>file:/D:/ti/c2000/C2000Ware_3_03_00_00/libraries/math/FPUfastRTS/c28</value>
+		</variable>
+		<variable>
+			<name>FPU_DSP_LIB_ROOT</name>
+			<value>file:/D:/ti/c2000/C2000Ware_3_03_00_00/libraries/dsp/FPU/c28</value>
+		</variable>
+	</variableList>
+</projectDescription>

@@ -1,0 +1,168 @@
+TMS320C2000 Assembler PC v20.2.1 Fri Feb  5 22:57:28 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../FPU_Ex1.asm                                                       PAGE    1
+
+       1              ;****************************************************************************************
+       2              ; File = FPU_Ex1.asm - Dr. Karl Gugel 2019
+       3              ; This program takes read a digital value (i.e. ADC output) and computes the integer one's
+       4              ; digit portion and the integer tenth's digit portion. To illustrate how to use the FPU
+       5              ; instructions.  VERY IMPORTANT See sprueo2b.pdf for the FPU instructions & use.
+       6              ;
+       7              ; Constants and Data:
+       8                                      .global         _c_int00        ;_c_int00 boot variable
+       9                                      .global         Temp0,ADC_Value,Resolut,Ones,Tenths     ; see variables in Map file
+      10        7029  WDCR            .set            0x7029          ;Watchdog Register is at address 0x7029
+      11 00000000                               .data                                   ;data section, starting at 0x8000.
+      12 00000000 6666  Temp0           .float          9.9                     ;For floating pt viewing purposes, 9.9 is random data
+         00000001 411E 
+      13 00000002 0C1F  ADC_Value       .word           3103            ;12 Bit Unsigned A/D test value, 2.5 Volts
+      14 00000004 32ED  Resolut         .float          0.00080566      ;Resolution = 3.3V/2^12, Note: 3103 * Resolution = 2.5
+         00000005 3A53 
+      15 00000006 0000  Ones            .word           0                       ;1's digit answer
+      16 00000007 0000  Tenths          .word           0                       ;1/10's digit answer
+      17              
+      18              ;************************ FPU Program Example ****************************
+      19 00000000               .text           ;Program section, program code starts at 0x9000
+      20 00000000       _c_int00:               
+      21 00000000 7622                  EALLOW                                  ;Enable Protected reg write. Needed to change control
+      22              
+      23 00000001 9A68                  MOV             AL,#0x0068              ;Disable Watchdog Timer
+      24 00000002 8D00                  MOVL    XAR0,#WDCR
+         00000003 7029 
+      25 00000004 96C0                  MOV             *AR0,AL
+      26              
+      27 00000005 28AD                  MOV             SP,#0x400               ;Initialize SP in case we use a subroutine
+         00000006 0400 
+      28                      
+      29 00000007 8D00"                 MOVL    XAR0,#ADC_Value ;12 bit unsigned A/D with VrefH = 3.3V and VrefL = 0V
+         00000008 0002 
+      30                                                                              ;you must use XAR7:0 for indirect addressing 
+      31              
+      32 00000009 92C0                  MOV             AL,*AR0                 ;Get 12 bit ADC test value
+      33 0000000a 9B00                  MOV             AH,#0x0                 ;zero upper word, we will use ACC to pass data to flo
+      34              
+      35                              ;;                                      ;R7H:R0H are 32 bit regs that can be used as INTEGERs
+      36 0000000b BDA9                  MOV32   R0H,@ACC        ;Move in 32 bit INTEGER ADC value
+         0000000c 0F12 
+      37                              ;NOP                                    ;When transferring to FPU Register you must align the
+      38                              ;NOP
+      39                              ;NOP
+      40                              ;NOP
+      41              
+      42 0000000d 0080'         LC      Int16_Float32           ;convert to float using my subroutine, argument passed via R0H
+         0000000e 0031 
+      43              
+      44                      ;Finally we can do some FPU MATH, Remember FPU Regs can be used for Integers or Floats!
+      45                      ;3.3V => 2^12 so Resolution = 3.3/4096 = 0.00080566V/Bit
+      46                      ;Note for Test Data: 3125*0.00080566 = 2.52V
+      47                      ;This code will now compute 1's digit (integer) and 1/10's digit (integer) portion.
+      48                      ;i.e. '2' and '5' in this example.  Useful for displaying to an LCD... Voltmeter app.
+TMS320C2000 Assembler PC v20.2.1 Fri Feb  5 22:57:28 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../FPU_Ex1.asm                                                       PAGE    2
+
+      49              
+      50              
+      51                                                                              ;COMPUTE ADC * RESOLUTION
+      52 0000000f 8D00"                 MOVL    XAR0,#Resolut   ;R0H = ADC Value, R1H = Resolution = Volts/Bit
+         00000010 0004 
+      53 00000011 E2AF                  MOV32   R1H,*XAR0
+         00000012 01C0 
+      54 00000013 E700                  MPYF32  R0H,R1H,R0H
+         00000014 0008 
+      55 00000015 7700                  NOP                                             ;required to get rid of pipeline error for be
+      56 00000016 E6CF                  MOV32   R1H,R0H                 ;Copy for 1/10's digit value computation below
+         00000017 0001 
+      57              
+      58                                                                              ;Compute ONE's DIGIT VALUE
+      59 00000018 0080'                 LC              Float32_Int16   ;Get rid of the fractional portion of ADC * Resolution
+         00000019 0038 
+      60 0000001a BFA9                  MOV32   @ACC,R0H                ;Save to 'Ones' memory
+         0000001b 0F12 
+      61 0000001c 28A0"                 MOV             AR0,#Ones               ;Note: Low Word of R0H = AL = 1's digit result
+         0000001d 0006 
+      62 0000001e 96C0                  MOV             *AR0,AL
+      63              
+      64                              ;;                                              ;Compute TENTH's DIGIT VALUE
+      65 0000001f BDA9                  MOV32   R0H,@ACC                ;Get the 'Ones' integer value back in R0H
+         00000020 0F12 
+      66                              ;NOP                                            ;Must put in to clear pipeline
+      67                              ;NOP
+      68                              ;NOP
+      69                              ;NOP
+      70              
+      71 00000021 0080'                 LC              Int16_Float32   ;Convert integer 1's digit back to float
+         00000022 0031 
+      72              
+      73 00000023 E720                  SUBF32  R1H,R1H,R0H             ;subtract off the 1's digit float amount from original
+         00000024 0009 
+      74 00000025 7700                  NOP                                             ;pipeline delays
+      75                              ;NOP
+      76              
+      77 00000026 E850                  MPYF32  R0H,#10.0,R1H   ;Multiply 1/10s digit portion by 10 to shift up to integer
+         00000027 4808 
+      78                              ;NOP                                            ;for LCD display purposes
+      79                              ;NOP
+      80              
+      81 00000028 0080'                 LC              Float32_Int16   ;Get rid of the fractional portion
+         00000029 0038 
+      82              
+      83 0000002a BFA9                  MOV32   @ACC,R0H                ;Save to 'Tenths' memory
+         0000002b 0F12 
+      84 0000002c 28A0"                 MOV             AR0,#Tenths             ;Note: Low Word of R0H = AL = 1/10's digit result
+         0000002d 0007 
+      85 0000002e 9C01                  ADD             AL,#1                   ; Add 1 to the tenths digit to round up from 4 to 5
+      86 0000002f 96C0                  MOV             *AR0,AL
+      87              
+      88 00000030 6F00  End1:   B       End1,unc
+      89              
+TMS320C2000 Assembler PC v20.2.1 Fri Feb  5 22:57:28 2021
+
+Copyright (c) 1996-2018 Texas Instruments Incorporated
+../FPU_Ex1.asm                                                       PAGE    3
+
+      90              
+      91              ******************************************************************************************
+      92              ***************** Subroutines Created For Float/Int Conversions **************************
+      93              ******************************************************************************************
+      94              
+      95 00000031       Int16_Float32:                          ;Integer to Float, R0H In and R0H Out
+      96 00000031 E68D          I16TOF32 R0H,R0H                ;16 bit integer to 32 bit float
+         00000032 0000 
+      97                      ;NOP                                            ;delays to clear pipeline before moving to ACC
+      98                      ;NOP
+      99 00000033 8D00"         MOVL    XAR0,#Temp0             ;Debug Purposes, view FLOAT VALUE in memory
+         00000034 0000 
+     100 00000035 E203          MOV32   *XAR0,R0H
+         00000036 00C0 
+     101 00000037 7614          LRET
+     102              
+     103              
+     104 00000038       Float32_Int16:
+     105 00000038 E68E          F32TOUI16 R0H,R0H               ;Convert to integer (lower 16 bits of R0H)
+         00000039 0000 
+     106                      ;NOP                                            ;pipeline delay purposes
+     107                      ;NOP
+     108 0000003a 8D00"         MOVL    XAR0,#Temp0             ;Debug Purposes, view INTEGER VALUE in memory
+         0000003b 0000 
+     109 0000003c E203          MOV32   *XAR0,R0H
+         0000003d 00C0 
+     110 0000003e 7614          LRET
+     111              ******************************************************************************************
+     112              ******************************************************************************************
+     113              ******************************************************************************************
+     114              
+     115              ;List File Lines for Viewing Memory Variables =>
+     116                                                                            
+     117              ;20 00000000       .data                                 ;data section, starting at 0x8000.
+     118              ;21 00000000 6666  Temp0       .float    9.9         ;For floating pt viewing purposes
+     119              ;   00000001 411E
+     120              ;22 00000002 0C35  ADC_Value   .word     3125        ;12 Bit Unsigned A/D test value, 2.5 Volt
+     121              ;23 00000004 32ED  Resolut     .float    0.00080566  ;Resolution = 3.3V/2^12
+     122              ;   00000005 3A53
+     123              ;24 00000006 0000  Ones        .word     0           ;1's digit answer
+     124              ;25 00000007 0000  Tenths      .word     0           ;1/10's digit answer
+
+No Assembly Errors, No Assembly Warnings

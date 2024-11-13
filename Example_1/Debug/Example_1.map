@@ -1,0 +1,176 @@
+******************************************************************************
+             TMS320C2000 Linker PC v20.2.1                     
+******************************************************************************
+>> Linked Thu Jan 28 16:47:10 2021
+
+OUTPUT FILE NAME:   <Example_1.out>
+ENTRY POINT SYMBOL: "_c_int00"  address: 00082000
+
+
+MEMORY CONFIGURATION
+
+         name            origin    length      used     unused   attr    fill
+----------------------  --------  ---------  --------  --------  ----  --------
+PAGE 0:
+  RAMM0                 00000122   000002de  00000008  000002d6  RWIX
+  RAMLS0                00008000   00000800  00000000  00000800  RWIX
+  RAMLS1                00008800   00000800  00000000  00000800  RWIX
+  RAMLS2                00009000   00000800  00000000  00000800  RWIX
+  RAMLS3                00009800   00000800  00000000  00000800  RWIX
+  RAMLS4                0000a000   00000800  00000000  00000800  RWIX
+  RAMD0                 0000b000   00000800  00000000  00000800  RWIX
+  RAMGS14               0001a000   00001000  00000000  00001000  RWIX
+  RAMGS15               0001b000   00001000  00000000  00001000  RWIX
+  BEGIN                 00080000   00000002  00000000  00000002  RWIX
+  FLASHA                00080002   00001ffe  00000000  00001ffe  RWIX
+  FLASHB                00082000   00002000  00000039  00001fc7  RWIX
+  FLASHC                00084000   00002000  00000000  00002000  RWIX
+  FLASHD                00086000   00002000  00000000  00002000  RWIX
+  FLASHE                00088000   00008000  00000000  00008000  RWIX
+  FLASHF                00090000   00008000  00000000  00008000  RWIX
+  FLASHG                00098000   00008000  00000000  00008000  RWIX
+  FLASHH                000a0000   00008000  00000000  00008000  RWIX
+  FLASHI                000a8000   00008000  00000000  00008000  RWIX
+  FLASHJ                000b0000   00008000  00000000  00008000  RWIX
+  FLASHK                000b8000   00002000  00000000  00002000  RWIX
+  FLASHL                000ba000   00002000  00000000  00002000  RWIX
+  FLASHM                000bc000   00002000  00000000  00002000  RWIX
+  FLASHN                000be000   00002000  00000000  00002000  RWIX
+  RESET                 003fffc0   00000002  00000000  00000002  RWIX
+
+PAGE 1:
+  BOOT_RSVD             00000002   00000120  00000000  00000120  RWIX
+  RAMM1                 00000400   00000400  00000000  00000400  RWIX
+  RAMLS5                0000a800   00000800  00000001  000007ff  RWIX
+  RAMD1                 0000b800   00000800  00000000  00000800  RWIX
+  RAMGS0                0000c000   00001000  00000000  00001000  RWIX
+  RAMGS1                0000d000   00001000  00000000  00001000  RWIX
+  RAMGS2                0000e000   00001000  00000000  00001000  RWIX
+  RAMGS3                0000f000   00001000  00000000  00001000  RWIX
+  RAMGS4                00010000   00001000  00000000  00001000  RWIX
+  RAMGS5                00011000   00001000  00000000  00001000  RWIX
+  RAMGS6                00012000   00001000  00000000  00001000  RWIX
+  RAMGS7                00013000   00001000  00000000  00001000  RWIX
+  RAMGS8                00014000   00001000  00000000  00001000  RWIX
+  RAMGS9                00015000   00001000  00000000  00001000  RWIX
+  RAMGS10               00016000   00001000  00000000  00001000  RWIX
+  RAMGS11               00017000   00001000  00000000  00001000  RWIX
+  RAMGS12               00018000   00001000  00000000  00001000  RWIX
+  RAMGS13               00019000   00001000  00000000  00001000  RWIX
+  CPU2TOCPU1RAM         0003f800   00000400  00000000  00000400  RWIX
+  CPU1TOCPU2RAM         0003fc00   00000400  00000000  00000400  RWIX
+
+
+SECTION ALLOCATION MAP
+
+ output                                  attributes/
+section   page    origin      length       input sections
+--------  ----  ----------  ----------   ----------------
+.cinit     0    00082000    00000000     UNINITIALIZED
+
+.pinit     0    00082000    00000000     UNINITIALIZED
+
+.TI.ramfunc 
+*          0    00008000    00000000     UNINITIALIZED
+
+.reset     0    003fffc0    00000000     DSECT
+
+GETBUFFER 
+*          0    0003f800    00000000     DSECT
+
+GETWRITEIDX 
+*          0    0003f800    00000000     DSECT
+
+PUTREADIDX 
+*          0    0003f800    00000000     DSECT
+
+.data      0    00000122    00000008     
+                  00000122    00000008     HW2.obj (.data)
+
+.text      0    00082000    00000039     
+                  00082000    00000039     HW2.obj (.text)
+
+.ebss      1    0000a800    00000001     UNINITIALIZED
+                  0000a800    00000001     HW2.obj (.ebss)
+
+MODULE SUMMARY
+
+       Module         code   initialized data   uninitialized data
+       ------         ----   ----------------   ------------------
+    .\
+       HW2.obj        57     8                  1                 
+    +--+--------------+------+------------------+--------------------+
+       Total:         57     8                  1                 
+                                                                  
+    +--+--------------+------+------------------+--------------------+
+       Grand Total:   57     8                  1                 
+
+
+GLOBAL DATA SYMBOLS: SORTED BY DATA PAGE
+
+
+[0 symbols]
+
+
+GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
+
+page  address   name                 
+----  -------   ----                 
+0     00000122  .data                
+abs   ffffffff  .text                
+0     00008000  _RamfuncsLoadEnd     
+abs   00000000  _RamfuncsLoadSize    
+0     00008000  _RamfuncsLoadStart   
+0     00008000  _RamfuncsRunEnd      
+abs   00000000  _RamfuncsRunSize     
+0     00008000  _RamfuncsRunStart    
+abs   ffffffff  ___TI_pprof_out_hndl 
+abs   ffffffff  ___TI_prof_data_size 
+abs   ffffffff  ___TI_prof_data_start
+abs   ffffffff  ___binit__           
+abs   ffffffff  ___c_args__          
+abs   ffffffff  ___cinit__           
+0     00000122  ___data__            
+0     0000012a  ___edata__           
+abs   ffffffff  ___etext__           
+abs   ffffffff  ___pinit__           
+abs   ffffffff  ___text__            
+0     00082000  _c_int00             
+abs   ffffffff  binit                
+abs   ffffffff  cinit                
+0     0000012a  edata                
+abs   ffffffff  etext                
+abs   ffffffff  pinit                
+
+
+GLOBAL SYMBOLS: SORTED BY Symbol Address 
+
+page  address   name                 
+----  -------   ----                 
+0     00000122  .data                
+0     00000122  ___data__            
+0     0000012a  ___edata__           
+0     0000012a  edata                
+0     00008000  _RamfuncsLoadEnd     
+0     00008000  _RamfuncsLoadStart   
+0     00008000  _RamfuncsRunEnd      
+0     00008000  _RamfuncsRunStart    
+0     00082000  _c_int00             
+abs   00000000  _RamfuncsLoadSize    
+abs   00000000  _RamfuncsRunSize     
+abs   ffffffff  .text                
+abs   ffffffff  ___TI_pprof_out_hndl 
+abs   ffffffff  ___TI_prof_data_size 
+abs   ffffffff  ___TI_prof_data_start
+abs   ffffffff  ___binit__           
+abs   ffffffff  ___c_args__          
+abs   ffffffff  ___cinit__           
+abs   ffffffff  ___etext__           
+abs   ffffffff  ___pinit__           
+abs   ffffffff  ___text__            
+abs   ffffffff  binit                
+abs   ffffffff  cinit                
+abs   ffffffff  etext                
+abs   ffffffff  pinit                
+
+[25 symbols]
